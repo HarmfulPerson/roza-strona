@@ -1,23 +1,36 @@
+import { Canvas, useFrame } from '@react-three/fiber';
+import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+function MyRotatingBox() {
+  const myMesh = React.useRef();
+
+  useFrame(({ clock }) => {
+    const a = clock.getElapsedTime();
+    myMesh.current.rotation.x = a;
+  });
+
+  return (
+    <mesh ref={myMesh}>
+      <boxBufferGeometry />
+      <meshPhongMaterial color="royalblue" />
+    </mesh>
+  );
+}
+
 function App() {
+  const startingPosition = React.useRef([-1, 0, 0]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div id="canvas-container">
+        <Canvas>
+          <MyRotatingBox />
+          <ambientLight intensity={0.1} />
+          <directionalLight />
+        </Canvas>
+      </div>
     </div>
   );
 }
