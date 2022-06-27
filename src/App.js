@@ -18,39 +18,100 @@ import Text from './components/Text3D/Text3D';
 import logo from './logo.svg';
 import './App.css';
 
-const Object = ({ url, position, key, ...props }) => {
+const Object = ({
+  url,
+  position,
+  menuName,
+  setMenuItem,
+  menuItem,
+  key,
+  pickItem,
+  ...props
+}) => {
   const { scene } = useLoader(GLTFLoader, url);
   const ref = React.useRef();
-
+  const [isHighlighted, setIsHighlighted] = React.useState(false);
+  const [positions, setPositions] = React.useState(null);
   const copiedScene = React.useMemo(() => scene.clone(), [scene]);
   useFrame((state, delta, clock) => {
-    ref.current.children[0].rotation.y -= 0.1;
-    // ref.current.children[0].rotation.z = start + state.clock.elapsedTime;
+    if (!menuItem) ref.current.children[0].rotation.y -= 0.05;
   });
+
+  const returnScale = (renderedItem) => {
+    switch (renderedItem) {
+      case 'Kontakt':
+        return 5;
+      case 'Onas':
+        return 1;
+      case 'Portfolio':
+        return 2;
+      case 'Rezerwacje':
+        return 3;
+      default:
+        return 0.1;
+    }
+  };
+
   return (
-    <group ref={ref}>
-      <primitive scale={0.05} object={copiedScene} position={position} />
+    <group
+      onClick={(e) => pickItem(menuName)}
+      onPointerMissed={(e) => setMenuItem(null)}
+      ref={ref}
+    >
+      <primitive
+        scale={returnScale(menuName)}
+        object={copiedScene}
+        position={position}
+      />
     </group>
   );
 };
 
-const Objects = () => {
+const urlPicker = (menuItem) => {
+  switch (menuItem) {
+    case 'Kontakt':
+      return './cell_phone/scene.gltf';
+    case 'Onas':
+      return './information/scene.gltf';
+    case 'Portfolio':
+      return './portfolio/scene.gltf';
+    case 'Rezerwacje':
+      return './rezerwacje/scene.gltf';
+    default:
+      return './drone_low_poly/scene.gltf';
+  }
+};
+
+const Objects = (props) => {
+  const { setMenuItem, menuItem } = props;
   const ref = React.useRef();
   const [start] = React.useState(() => Math.random() * 5000);
   const clockPositions = [0, 300, 600, 900];
+  const pickItem = (menuName) => {
+    console.log(ref.current.children[0].rotation._y);
+    console.log(ref.current.children[1].rotation._y);
+    console.log(ref.current.children[2].rotation._y);
+    console.log(ref.current.children[3].rotation._y);
+    setMenuItem(menuName);
+  };
   useFrame((state, delta, clock) => {
     ref.current?.children.forEach((letter, index) => {
-      letter.rotation.y = state.clock.getElapsedTime() + clockPositions[index];
+      if (!menuItem)
+        letter.rotation.y =
+          state.clock.getElapsedTime() + clockPositions[index];
     });
-    // ref.current.rotation.z = Math.sin(state.clock.getElapsedTime());
   });
   return (
     <group ref={ref}>
-      {[6, 7, 8, 9].map((lol, index) => (
+      {['Onas', 'Kontakt', 'Portfolio', 'Rezerwacje'].map((lol) => (
         <Object
           key={lol}
-          position={[50, 1, 0]}
-          url="./drone_low_poly/scene.gltf"
+          setMenuItem={setMenuItem}
+          menuItem={menuItem}
+          menuName={lol}
+          position={[20, 1, 0]}
+          url={urlPicker(lol)}
+          pickItem={pickItem}
         />
       ))}
     </group>
@@ -89,25 +150,50 @@ function Jumbo() {
   );
 }
 
+function ItemMenu(props) {
+  const { menuItem } = props;
+  const ref = React.useRef();
+  console.log(menuItem);
+  useFrame(
+    // eslint-disable-next-line no-return-assign
+    ({ clock }) =>
+      (ref.current.rotation.x = Math.sin(clock.getElapsedTime()) * 0.3)
+  );
+  const positioning = {
+    Rezerwacje: -24,
+    Onas: -12,
+    Portfolio: -24,
+    Kontakt: -20,
+  };
+  return (
+    <group ref={ref}>
+      <Text
+        hAlign="right"
+        scale={[100, 100, 100]}
+        position={[positioning[menuItem], 20, 0]}
+        children={menuItem.toUpperCase()}
+      />
+    </group>
+  );
+}
+
 function App() {
   const startingPosition = React.useRef([-1, 0, 0]);
+  const [menuItem, setMenuItem] = React.useState(null);
   return (
     <div className="App">
       <div id="canvas-container">
         <Canvas
           dpr={window.devicePixelRatio}
-          camera={{ position: new THREE.Vector3(10, 25, 100) }}
+          camera={{ position: new THREE.Vector3(10, 15, 35) }}
           style={{ height: '100vh' }}
         >
           <color attach="background" args={['#06092c']} />
-          <pointLight position={[-20, 10, 25]} />
-          <pointLight position={[-100, 0, -160]} />
-          <pointLight position={[0, 0, -170]} />
-          <pointLight position={[100, 0, -160]} />
+          <directionalLight position={[10, 0, 25]} />
           <Suspense fallback={null}>
-            <Jumbo />
+            {menuItem ? <ItemMenu menuItem={menuItem} /> : <Jumbo />}
 
-            <Objects />
+            <Objects setMenuItem={setMenuItem} menuItem={menuItem} />
           </Suspense>
           {/* <gridHelper
             args={[100, 20, '#4D089A', '#4D089A']}
@@ -115,7 +201,7 @@ function App() {
             rotation={[0, 0, 0]}
           /> */}
           <Center />
-          <OrbitControls />
+          {/* <OrbitControls /> */}
           <Stars
             radius={100} // Radius of the inner sphere (default=100)
             depth={50} // Depth of area where stars should fit (default=50)

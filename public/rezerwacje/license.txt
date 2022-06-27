@@ -1,0 +1,11 @@
+Model Information:
+* title:	Simple Stylized Cartoon Style Calendar
+* source:	https://sketchfab.com/3d-models/simple-stylized-cartoon-style-calendar-d3f5e5763e2848359844a833cb7854ff
+* author:	Anggo Ari Wibowo (https://sketchfab.com/anggoariwibowo)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Simple Stylized Cartoon Style Calendar" (https://sketchfab.com/3d-models/simple-stylized-cartoon-style-calendar-d3f5e5763e2848359844a833cb7854ff) by Anggo Ari Wibowo (https://sketchfab.com/anggoariwibowo) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
